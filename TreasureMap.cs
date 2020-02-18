@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace FLS_Task1
@@ -14,25 +15,31 @@ namespace FLS_Task1
         public int X { get; }
 
         public int Y { get; }
+
+        public override string ToString()
+        {
+            return X + " " + Y;
+        }
     }
 
 
     class TreasureMap
     {
-        static void DrawLine(Point2D firstCrd, Point2D secondCrd)
+        static void DrawLine(Point2D firstCrd, Point2D secondCrd, List<Point2D> lstRiv)
         {
             var dx = secondCrd.X - firstCrd.X;
             var dy = secondCrd.Y - firstCrd.Y;
 
             if (Math.Abs(dx) >= Math.Abs(dy))
             {
-                double k = (double) dy / (double) dx;
+                var k = (double) dy / (double) dx;
                 if (dx > 0)
                 {
                     for (var i = 0; i <= dx; i++)
                     {
                         var x = i + firstCrd.X;
                         var y = (int) (i * k) + firstCrd.Y;
+                        lstRiv.Add(new Point2D(x, y));
                         Console.SetCursorPosition(x, y);
                         Console.Write('~');
                     }
@@ -43,6 +50,7 @@ namespace FLS_Task1
                     {
                         var x = i + firstCrd.X;
                         var y = (int) (i * k) + firstCrd.Y;
+                        lstRiv.Add(new Point2D(x, y));
                         Console.SetCursorPosition(x, y);
                         Console.Write('~');
                     }
@@ -50,13 +58,14 @@ namespace FLS_Task1
             }
             else if (Math.Abs(dx) <= Math.Abs(dy))
             {
-                double k = (double) dx / (double) dy;
+                var k = (double) dx / (double) dy;
                 if (dy > 0)
                 {
                     for (var i = 0; i <= dy; i++)
                     {
                         var x = (int) (i * k) + firstCrd.X;
                         var y = i + firstCrd.Y;
+                        lstRiv.Add(new Point2D(x, y));
                         Console.SetCursorPosition(x, y);
                         Console.Write('~');
                     }
@@ -67,6 +76,7 @@ namespace FLS_Task1
                     {
                         var x = (int) (i * k) + firstCrd.X;
                         var y = i + firstCrd.Y;
+                        lstRiv.Add(new Point2D(x, y));
                         Console.SetCursorPosition(x, y);
                         Console.Write('~');
                     }
@@ -76,13 +86,16 @@ namespace FLS_Task1
 
         static void Main(string[] args)
         {
-            var filePath = "HardMap.txt";
-            StreamReader sr = new StreamReader(filePath);
+            var filePath = "Map10.txt";
+            var sr = new StreamReader(filePath);
             //not supported on Mac OS
             //Console.SetWindowSize(columns, rows);
             //Console.SetBufferSize(columns + 1, rows + 1);
             string line;
-            Point2D bridge = new Point2D();
+            var bridge = new Point2D();
+            var treasure = new Point2D();
+            var lstBase = new List<Point2D>();
+            var lstRiver = new List<Point2D>();
             while ((line = sr.ReadLine()) != null)
             {
                 line = line.Replace(" ", "");
@@ -95,30 +108,34 @@ namespace FLS_Task1
                     var crd1 = coordinates[0].Split(',');
                     var crd2 = coordinates[1].Split(',');
 
-                    Point2D firstCrd = new Point2D(Convert.ToInt32(crd1[0]), Convert.ToInt32(crd1[1]));
-                    Point2D secondCrd = new Point2D(Convert.ToInt32(crd2[0]), Convert.ToInt32(crd2[1]));
+                    var firstCrd = new Point2D(Convert.ToInt32(crd1[0]), Convert.ToInt32(crd1[1]));
+                    var secondCrd = new Point2D(Convert.ToInt32(crd2[0]), Convert.ToInt32(crd2[1]));
 
                     for (var i = 0; i <= Math.Abs(firstCrd.X - secondCrd.X); i++)
                     {
                         Console.SetCursorPosition(firstCrd.X + i, firstCrd.Y);
+                        lstBase.Add(new Point2D(firstCrd.X + i, firstCrd.Y));
                         Console.Write('@');
                     }
 
                     for (var i = 0; i <= Math.Abs(firstCrd.Y - secondCrd.Y); i++)
                     {
                         Console.SetCursorPosition(secondCrd.X, firstCrd.Y + i);
+                        lstBase.Add(new Point2D(secondCrd.X, firstCrd.Y + i));
                         Console.Write('@');
                     }
 
                     for (var i = 0; i <= Math.Abs(firstCrd.X - secondCrd.X); i++)
                     {
                         Console.SetCursorPosition(secondCrd.X - i, secondCrd.Y);
+                        lstBase.Add(new Point2D(secondCrd.X - i, secondCrd.Y));
                         Console.Write('@');
                     }
 
                     for (var i = 0; i <= Math.Abs(firstCrd.Y - secondCrd.Y); i++)
                     {
                         Console.SetCursorPosition(firstCrd.X, secondCrd.Y - i);
+                        lstBase.Add(new Point2D(firstCrd.X, secondCrd.Y - i));
                         Console.Write('@');
                     }
                 }
@@ -126,7 +143,8 @@ namespace FLS_Task1
                 {
                     line = line.Substring(openBrc + 1, closeBrc - openBrc - 1);
                     var coordinates = line.Split(',');
-                    Point2D crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
+                    var crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
+                    treasure = crd;
                     Console.SetCursorPosition(crd.X, crd.Y);
                     Console.WriteLine('+');
                 }
@@ -134,7 +152,7 @@ namespace FLS_Task1
                 {
                     line = line.Substring(openBrc + 1, closeBrc - openBrc - 1);
                     var coordinates = line.Split(',');
-                    Point2D crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
+                    var crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
                     bridge = crd;
                 }
                 else if (line.Contains("WATER"))
@@ -146,10 +164,10 @@ namespace FLS_Task1
                     {
                         var crd1 = coordinates[i].Split(',');
                         var crd2 = coordinates[i + 1].Split(',');
-                        Point2D firstCrd = new Point2D(Convert.ToInt32(crd1[0]), Convert.ToInt32(crd1[1]));
-                        Point2D secondCrd = new Point2D(Convert.ToInt32(crd2[0]), Convert.ToInt32(crd2[1]));
+                        var firstCrd = new Point2D(Convert.ToInt32(crd1[0]), Convert.ToInt32(crd1[1]));
+                        var secondCrd = new Point2D(Convert.ToInt32(crd2[0]), Convert.ToInt32(crd2[1]));
 
-                        DrawLine(firstCrd, secondCrd);
+                        DrawLine(firstCrd, secondCrd, lstRiver);
                     }
                 }
             }
