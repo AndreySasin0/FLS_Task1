@@ -147,8 +147,7 @@ namespace FLS_Task1
             {
                 if (point.X < 0 || point.X >= field.GetLength(0)) continue;
                 if (point.Y < 0 || point.Y >= field.GetLength(1)) continue;
-                //nullreference exception if I try to filter points with the lstRiv
-                // if (lstRiv.Any(rivPoint=>rivPoint.X == point.X && rivPoint.Y == point.Y)) continue; //COMMENT IT TO START ACTUAL BUILD
+                if (lstRiv.Contains(point)) continue;
                 var neighbour = new Node()
                 {
                     Position = point,
@@ -229,6 +228,9 @@ namespace FLS_Task1
             var treasure = new Point2D();
             var lstBase = new List<Point2D>();
             var lstRiver = new List<Point2D>();
+            const int columns = 60;
+            const int rows = 40;
+            var field = new int [columns, rows]; //size of the map
             while ((line = sr.ReadLine()) != null)
             {
                 line = line.Replace(" ", "");
@@ -305,9 +307,10 @@ namespace FLS_Task1
                 }
             }
 
-            var field = new int [60, 40];
+            lstRiver.Remove(bridge);
             Console.SetCursorPosition(bridge.X, bridge.Y);
             Console.WriteLine('#');
+
             if (FindPath(field, lstBase[0], treasure, lstRiver).Count > 0)
             {
                 foreach (var node in FindPath(field, lstBase[0], treasure, lstRiver))
