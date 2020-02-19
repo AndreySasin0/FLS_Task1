@@ -314,8 +314,6 @@ namespace FLS_Task1
             foreach (var brg in lstBridge)
             {
                 lstRiver.Remove(brg);
-                Console.SetCursorPosition(brg.X, brg.Y);
-                Console.WriteLine('#');
             }
 
 
@@ -344,6 +342,18 @@ namespace FLS_Task1
                         Console.Write('%');
                     }
                 }
+            }
+
+            foreach (var brg in lstBridge)
+            {
+                Console.SetCursorPosition(brg.X, brg.Y);
+                Console.WriteLine('#');
+            }
+
+            foreach (var trs in lstTreasure)
+            {
+                Console.SetCursorPosition(trs.X, trs.Y);
+                Console.Write('+');
             }
 
 
