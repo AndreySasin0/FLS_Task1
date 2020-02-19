@@ -218,7 +218,7 @@ namespace FLS_Task1
 
         static void Main(string[] args)
         {
-            const string filePath = "Map1.txt"; //ENTER THE PATH TO THE MAP HERE
+            const string filePath = "Map5.txt"; //ENTER THE PATH TO THE MAP HERE
             var sr = new StreamReader(filePath);
             //not supported on Mac OS
             //Console.SetWindowSize(columns, rows);
@@ -228,6 +228,8 @@ namespace FLS_Task1
             var treasure = new Point2D();
             var lstBase = new List<Point2D>();
             var lstRiver = new List<Point2D>();
+            var lstTreasure = new List<Point2D>();
+            var lstBridge = new List<Point2D>();
             const int columns = 60;
             const int rows = 40;
             var field = new int [columns, rows]; //size of the map
@@ -280,6 +282,7 @@ namespace FLS_Task1
                     var coordinates = line.Split(',');
                     var crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
                     treasure = crd;
+                    lstTreasure.Add(treasure);
                     Console.SetCursorPosition(crd.X, crd.Y);
                     Console.WriteLine('+');
                 }
@@ -289,6 +292,7 @@ namespace FLS_Task1
                     var coordinates = line.Split(',');
                     var crd = new Point2D(Convert.ToInt32(coordinates[0]), Convert.ToInt32(coordinates[1]));
                     bridge = crd;
+                    lstBridge.Add(bridge);
                 }
                 else if (line.Contains("WATER"))
                 {
@@ -307,22 +311,41 @@ namespace FLS_Task1
                 }
             }
 
-            lstRiver.Remove(bridge);
-            Console.SetCursorPosition(bridge.X, bridge.Y);
-            Console.WriteLine('#');
-
-            if (FindPath(field, lstBase[0], treasure, lstRiver).Count > 0)
+            foreach (var brg in lstBridge)
             {
-                foreach (var node in FindPath(field, lstBase[0], treasure, lstRiver))
+                lstRiver.Remove(brg);
+                Console.SetCursorPosition(brg.X, brg.Y);
+                Console.WriteLine('#');
+            }
+
+
+            for (var i = 0; i < lstTreasure.Count; i++)
+            {
+                if (i == 0)
                 {
-                    Console.SetCursorPosition(node.X, node.Y);
-                    Console.Write('%');
+                    if (FindPath(field, lstBase[0], lstTreasure[0], lstRiver).Count > 0)
+                    {
+                        foreach (var node in FindPath(field, lstBase[0], lstTreasure[0], lstRiver))
+                        {
+                            Console.SetCursorPosition(node.X, node.Y);
+                            Console.Write('%');
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("There is no appropriate path");
+                    }
+                }
+                else
+                {
+                    foreach (var node in FindPath(field, lstTreasure[i - 1], lstTreasure[i], lstRiver))
+                    {
+                        Console.SetCursorPosition(node.X, node.Y);
+                        Console.Write('%');
+                    }
                 }
             }
-            else
-            {
-                Console.WriteLine("There is no appropriate path");
-            }
+
 
             Console.ReadLine();
         }
